@@ -1,0 +1,68 @@
+---
+title: "Data Science Methods for Economics and Finance 871 Exam" 
+author: "Talyah Greyling (23761067)" 
+output:
+    md_document:
+    variant: markdown_github
+---
+
+# PURPOSE: 
+
+This readme is located in my repository for the Data Science Methods for Economics and Finance 871 Exam. 
+The repository contains all of my code, figures, tables, and write-ups for the exam. 
+There are a total of five questions & each question has its own folder with an accompanying code and data folder.
+ 
+
+```{r create folders, eval = FALSE}
+
+#The project was created by copying the file path for my repository file (C:/Users/Talyah Greyling/Documents/1) Meesters/1) Data Science 871/Data-Science-Exam) and then using fmxdat::make_project(ProjNam = "23761067"). 
+
+#This code was used to create the question folders: 
+location <- "C:/Users/Talyah Greyling/Documents/1) Meesters/1) Data Science 871/Data-Science-Exam"
+Texevier::create_template(directory = location, template_name = "Question1")
+Texevier::create_template(directory = location, template_name = "Question2")
+Texevier::create_template(directory = location, template_name = "Question3")
+Texevier::create_template(directory = location, template_name = "Question4")
+Texevier::create_template(directory = location, template_name = "Question5")
+
+```
+
+#QUESTION 1:
+
+##Code used for figures and tables: 
+
+```{r setup, echo = FALSE, output = TRUE}
+
+rm(list = ls())     # clean environment
+gc()    # garbage collection 
+
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6, fig.height = 5, fig.pos="H", fig.pos = 'H')
+
+library(pacman)
+p_load(tidyverse, lubridate)
+
+# Source in functions:
+list.files('Question1/code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+
+```
+
+### Data
+
+The unzipped data files are in their respective question folders.
+
+### Question 1
+
+#### Loading the data
+
+```{r}
+# See why the parameter Datroot was useful now?
+datcolat <- Data_Collating(Datroot = "Question1/Data/Happy/")
+
+```
+
+
+
+
+
+
+
