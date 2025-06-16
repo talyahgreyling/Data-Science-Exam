@@ -8,3 +8,9 @@ plot_orderset <- function(df, Column, Order){
     df
 
 }
+
+# df[, Column] extracts the column as a dataframe (single column).
+
+# [[1]] converts it to a vector.
+
+# levels = Order forces the factor to use the user-specified order.

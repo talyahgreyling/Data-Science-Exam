@@ -5,13 +5,15 @@ dfplot <-
     group_by(`Regional indicator`) %>%
     # summarise(across(c(`Ladder score`, ends_with("whisker")),
     # list(median), .names = "{col}.{fn}") )
-    summarise_at( vars(c(`Ladder score`, ends_with("whisker")) ), ~median(.))
+    summarise_at( vars(c(`Ladder score`, ends_with("whisker")) ), ~median(.))  #take the mean of multiple cols seperately
 
 # Life expectancy
 HE <-
-    datcolat %>% group_by(`Regional indicator`) %>% summarise_at(vars(`Healthy life expectancy`), ~median(.)) %>%
+    datcolat %>% group_by(`Regional indicator`) %>%
+    summarise_at(vars(`Healthy life expectancy`), ~median(.)) %>%
     # For ease of naming:
-    rename(HE = `Healthy life expectancy`) %>% mutate(HE = round(HE, 1))
+    rename(HE = `Healthy life expectancy`) %>%
+    mutate(HE = round(HE, 1))
 
 # Join LE to plot, so that we have y-coordinates for LE label:
 dfplot <-
@@ -20,8 +22,11 @@ dfplot <-
               by = "Regional indicator")
 
 # Adjust ordering as per gist:
-order <- dfplot %>% arrange(HE) %>% pull(`Regional indicator`)
-dfplot <- dfplot %>% plot_orderset(., Column = "Regional indicator", Order = order)
+order <- dfplot %>%
+    arrange(HE) %>% # Sort dataframe by the 'HE' column (ascending) Note: Use arrange(desc(HE)) for descending order.
+    pull(`Regional indicator`) # Extract the 'Regional indicator' column as a vector
+dfplot <- dfplot %>%
+    plot_orderset(., Column = "Regional indicator", Order = order) #FUNCTION
 
 g <-
     dfplot %>%
@@ -29,13 +34,13 @@ g <-
     geom_point(aes(x = `Regional indicator`, y = `Ladder score`, color = `Regional indicator`), size = 4, alpha = 0.8) +
     geom_errorbar(aes(x = `Regional indicator`,
                       ymin = lowerwhisker, ymax = upperwhisker, color = `Regional indicator`)) +
-    geom_text(aes(`Regional indicator`, y = upperwhisker, label = HE), vjust = 0) +
+    geom_text(aes(`Regional indicator`, y = upperwhisker, label = HE), vjust = 0) + # HE labels
 
 
     theme_bw() +
-    scale_x_discrete(guide = guide_axis(n.dodge = xaxis_rows)) +
+    scale_x_discrete(guide = guide_axis(n.dodge = xaxis_rows)) + # Prevents label overlap
     labs(title = "Happiness Index", subtitle = "Some subtitle", caption = "Data source: World Happiness Index", x = "", y = "Happiness Score") +
-    theme(legend.position = "top", legend.title = element_blank()) +
+    theme(legend.position = "top", legend.title = element_blank()) + # Removes the legend title
     theme(plot.title = element_text(size = 14),
           plot.subtitle = element_text(size = 12),
           axis.text.x = element_text(size = xaxis_size)) +

@@ -45,7 +45,7 @@ Note - try not to spend too much time on the write-up part. I just want to check
 You must detail the steps in building your Texevier pdf as below.
 
 ```{r}
-
+rm(list = ls()) # Cleans environment
 gc() # garbage collection - It can be useful to call gc after a large object has been removed, as this may prompt R to return memory to the operating system.
 library(pacman)
 p_load(tidyverse, lubridate)

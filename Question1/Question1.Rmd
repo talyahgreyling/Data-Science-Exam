@@ -92,7 +92,12 @@ abstract: |
 <!-- If you want a chunk's code to be printed, set echo = TRUE. message = FALSE stops R printing ugly package loading details in your final paper too. I also suggest setting warning = FALSE and checking for warnings in R, else you might find ugly warnings in your paper. -->
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.width = 6, fig.height = 5, fig.pos="H", fig.pos = 'H')
+knitr::opts_chunk$set(echo = FALSE, 
+                      message = FALSE, 
+                      warning = FALSE, 
+                      fig.width = 6, 
+                      fig.height = 5, 
+                      fig.pos = 'H')
 
 if(!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
@@ -118,7 +123,7 @@ Look at the README.txt file and maybe give some background - especially also in 
 Notice that for the below plots I created a parameters to play around with xaxis labels.
 
 ```{r,  warning =  FALSE, fig.align = 'center', fig.cap = "Happiness Ladder.\\label{Figure1}", fig.ext = 'png', fig.height = 5, fig.width = 7}
-
+  # Alternatives for saving as : 'png', 'pdf', 'jpeg', 'svg'
   # Source the plot with a function, and then print it as below.
     # Going through the function, you will note that I'm able to source other functions in the code folder in these functions too.
 # That's the beauty of centralizing your functions and loading it in the top.

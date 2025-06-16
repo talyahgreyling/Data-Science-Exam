@@ -31,23 +31,27 @@ abstract: |
 ```{r, echo = FALSE, message = FALSE, warning = FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.width = 6, fig.height = 5)
 
-options(dplyr.summarise.inform=F)
+options(dplyr.summarise.inform=F) # suppress messages 
 
 if(!require("tidyverse")) install.packages("tidyverse")
 library(tidyverse)
 
-list.files('code/', full.names = T, recursive = T) %>% as.list() %>% walk(~source(.))
-# Source Question 1's code too ()for plot_order function) - note ..// here means go up one level from current folder
-list.files('..//Question1/code/', full.names = T, recursive = T) %>% as.list() %>% walk(~source(.))
+list.files('code/', full.names = T, recursive = T) %>% 
+    as.list() %>% 
+    walk(~source(.))
+# Source Question 1's code too (for plot_order function) - note ..// here means go up one level from current folder
+list.files('..//Question1/code/', full.names = T, recursive = T) %>% 
+    as.list() %>% 
+    walk(~source(.))
 
 # Data loading:
-    Loc <- "data/Wine/"
-    dff <- read_rds(glue::glue("{Loc}WineMag.rds"))
-    Fruitlist <- read_table("data/wine/Fruitlist.txt")
-    froots <- Fruitlist$Fruits  %>% unique %>% as.list()
+    Loc <- "data/Wine/" # Sets the directory path where wine data files are stored
+    dff <- read_rds(glue::glue("{Loc}WineMag.rds")) # Uses glue to construct the full file path & read in rds file
+    Fruitlist <- read_table("data/wine/Fruitlist.txt") #Reads a text file containing fruit-related terms (one per line)
+    froots <- Fruitlist$Fruits  %>% unique %>% as.list() # Extracts  "Fruits" column, gets unique values, converts to list
     CountryList <- c("South Africa", "Italy", "France", "US", "Spain")
 
-    dff_adj <- dff %>% filter(country %in% CountryList)
+    dff_adj <- dff %>% filter(country %in% CountryList) # Filters the main dataset to only include wines from these countries
 
 
 ```
@@ -68,28 +72,38 @@ In order to get insight into how often fruits are mentioned in reviews, and also
 
 We see that Plums are most referenced, with critics in Spain most regularly referencing fruits in their reviews:
 
-```{r,  warning =  FALSE, fig.align = 'center', fig.cap = "References to Fruits by Sommeliers\\label{Figure1}", fig.ext = 'png', fig.height = 5, fig.width = 7}
+```{r,  warning =  FALSE, fig.align = 'center', fig.cap = "References to Fruits by Sommeliers\\label{Figure1}", fig.ext = 'png', fig.height = 5, fig.width = 7, cache = TRUE}
 
 # Count fruit references, by mapping the Fruit_extractor function across the different fruitlist 
 # Remember ~ before function:
-fruit_count <- froots %>% map_df(~Fruit_extractor(dff_adj, froots = .))
+fruit_count <- froots %>% # iterate through each fruit
+    map_df(~Fruit_extractor(dff_adj, froots = .)) # create df where for each country say prop of fruits mentioned (col2 = prop & col 3 = which fruit) 
 g <- First_fruits_plot(fruit_count, xaxis_rows = 2, xaxis_size = 5)
 g
+
+# This code performs flavor frequency analysis on wine reviews and generates a visualization
 ```
 
 
 
-```{r}
+```{r, cache = TRUE}
+# Calculate proportion of wine reviews mentioning any fruit term (from your predefined Fruitlist) for two groups: (1) all countries except Spain, and (2) Spain specifically
 # grepl needs "|", e.g. grepl("X|Y|Z", string)
-collapsed_fruitlist <- paste(Fruitlist$Fruits, collapse = "|")
+collapsed_fruitlist <- paste(Fruitlist$Fruits, collapse = "|") #Collapse Fruitlist into single regex pattern separated by | (OR operator) to enable grepl to check for any fruit term in one operation.
 
-N_Refs_Fruit <- dff_adj %>% filter(!country %in% "Spain") %>% summarise(N = sum(grepl( collapsed_fruitlist, description))/ n()) %>% pull(N)
+N_Refs_Fruit <- dff_adj %>% 
+    filter(!country %in% "Spain") %>% # Exclude Spanish wines
+    summarise(N = sum(grepl( collapsed_fruitlist, description))/ n()) %>% # Proportion of reviews with fruit terms
+    pull(N) # Extract the numeric value
 
-N_Refs_Fruit_spain <- dff_adj %>% filter(country %in% "Spain") %>% summarise(N = sum(grepl( collapsed_fruitlist, description))/ n()) %>% pull(N)
+N_Refs_Fruit_spain <- dff_adj %>% 
+    filter(country %in% "Spain") %>% 
+    summarise(N = sum(grepl( collapsed_fruitlist, description))/ n()) %>% 
+    pull(N)
 
 ```
 
-For the following, I used my discretion and added some further insight into the fruit referncing exercise. This could've been a plot, but let's practice referencing in text.
+For the following, I used my discretion and added some further insight into the fruit referencing exercise. This could've been a plot, but let's practice referencing in text.
 
 Spanish wines have far greater references to fruit, at `r round(N_Refs_Fruit_spain*100, 3)`%  of references mentioning fruits, compared to 
 `r round(N_Refs_Fruit*100, 2)`% of reviews for `r glue::glue_collapse( CountryList[!grepl("Spain", CountryList)], sep = ", ", last = " and ")`.
@@ -128,15 +142,23 @@ From Figure \ref{Figure2}, note the most preferred wineries. You can discuss a b
 
 ```{r}
 Corr <- 
-df_SA %>% filter(price > 10) %>% 
-  group_by(taster_name) %>% summarise(Corr = cor(price, points, method = "spearman", use = "pairwise.complete.obs"))
+df_SA %>% 
+    filter(price > 10) %>% # Only wines priced over $10
+  group_by(taster_name) %>% # Group by reviewer (e.g., Lauren, Susan)
+    summarise(Corr = cor(price, points, # Calculate Spearman correlation
+                         method = "spearman", 
+                         use = "pairwise.complete.obs")) # Ignore missing values
+
+# output = dataframe 'Corr' with col1 = 'taster_name' & col2 = 'Corr' (2x2 matrix)
+#`r Corr %>% slice(1) %>% pull(Corr) %>% round(.,3)*100`%  # Lauren's correlation
+# `r Corr %>% slice(2) %>% pull(Corr) %>% round(.,3)*100`%  # Susan's correlation
 
 ```
 
 In terms of correlations, note the correlations between prices and reviews for Lauren Buzzeo (`r Corr %>% slice(1) %>% pull(Corr) %>% round(.,3)*100`%) and Susan Kostrzewa (`r Corr %>% slice(2) %>% pull(Corr) %>% round(.,3)*100`%).
 
 
-We can further run regressions on what determines determines points based on our dataset. You can now add a few sentences describing this a bit.
+We can further run regressions on what determines points based on our dataset. You can now add a few sentences describing this a bit.
 
 ```{r,  warning =  FALSE, fig.align = 'center', fig.cap = "Local point determinants.\\label{Figure3}", fig.ext = 'png', fig.height = 5, fig.width = 7}
 
