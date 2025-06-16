@@ -1,10 +1,9 @@
 ---
 title: "Data Science Methods for Economics and Finance 871 Exam" 
 author: "Talyah Greyling (23761067)" 
-date: "17-19 June 2025"
-    output:
-        md_document:
-            variant: markdown_github
+output:
+    md_document:
+    variant: markdown_github
 ---
 
 # PURPOSE: 
