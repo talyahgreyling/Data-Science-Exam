@@ -1,24 +1,55 @@
 ---
-output:
-  md_document:
-    variant: markdown_github
+title: "Data Science Methods for Economics and Finance 871 Exam" 
+author: "Talyah Greyling (23761067)" 
+date: "17-19 June 2025"
+    output:
+        md_document:
+            variant: markdown_github
 ---
 
-# Purpose
+# PURPOSE: 
 
-Purpose of this work folder.
+This readme is located in my repository for the Data Science Methods for Economics and Finance 871 Exam. 
+The repository contains all of my code, figures, tables, and write-ups for the exam. 
+There are a total of five questions & each question has its own folder with an accompanying code folder.
+There is a repository folder titled "all_questions" that contains a number of global scripts which are utilised over numerous questions. 
 
-Ideally store a minimum working example data set in data folder.
+## Contents of "all_questions": 
+* "aesthetics.R" - Sets up a palette & theme to be used in all plots (ensures consistency)
+* "
 
-Add binary files in bin, and closed R functions in code. Human Readable settings files (e.g. csv) should be placed in settings/
+##  List of necessary libraries/ packages:
+*
+
+##  Question 1: *insert question name *
+This question can be located in the folder named "*insert folder name*". 
+Hereafter follows a step by step explanation of the approach followed to answer this question: 
+
+### Main questions guiding the approach: 
+*Nature of the data: Time series/ Cross section 
+    *
+*
+
+### Data operations performed: 
+*
+
+### Functions created: 
+Below is a list of the functions created for this question as well as a description of what the function does:
+### Description of plotting techniques used: 
+* 
+
+### Issues encountered during question: 
+*
 
 
-```{r}
+```{r setup, echo = FALSE, output = TRUE}
 
 rm(list = ls()) # Clean your environment:
-gc() # garbage collection - It can be useful to call gc after a large object has been removed, as this may prompt R to return memory to the operating system.
+gc() 
 library(tidyverse)
 list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.list() %>% walk(~source(.))
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 6, fig.height = 5, fig.pos="H", fig.pos = 'H')
+```
 ```
 
 
