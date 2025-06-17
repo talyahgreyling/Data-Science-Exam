@@ -21,13 +21,15 @@ list.files('code/', full.names = T, recursive = T) %>% .[grepl('.R', .)] %>% as.
 
 Lst <- 
     list.files("data/Tennis/", full.names = T) %>% 
-    .[grepl("atp_matches", .)] %>% 
+    .[grepl("atp_matches", .)] %>%  # Keep only ATP singles match files
     # I don't want to look at doubles - cos Nadal no play double.
-    .[!grepl("doubles", .)] %>% as.list()
+    .[!grepl("doubles", .)] %>% # Exclude doubles matches
+    as.list() # Convert to list of file paths for mapping
 
 # Join player info by id:
     playerinfo <-
-        read_rds("data/Tennis/atp_players.rds") %>% select(player_id, hand, height)
+        read_rds("data/Tennis/atp_players.rds") %>% 
+        select(player_id, hand, height) # Keep key player traits
 
     # The following function reads in the player information in a concise, silent manner.
     # My thinking here is to....
@@ -54,14 +56,15 @@ Nadal vs Djokovic at grandslam and master's events:
 # Note the function used - it has a few tips and tricks!
 
 Result <- 
-    c("Rafael Nadal", "Roger Federer", "Andy Murray", "Novak Djokovic", "Frank Tom") %>% as.list() %>% 
-    map_df(~Winsummary_Function_Compiler(result_Large_events,
-                                 Player_Name = .,
-                                 playerinfo, 
-                                 Top_N = 5,
-                                 Silent = F))
+    c("Rafael Nadal", "Roger Federer", "Andy Murray", "Novak Djokovic", "Frank Tom") %>% 
+    as.list() %>% 
+    map_df(~Winsummary_Function_Compiler(result_Large_events, # Filtered dataset (Grand Slams/Masters/Finals)
+                                 Player_Name = ., # Current player name in iteration
+                                 playerinfo, # Player metadata (hand, height)
+                                 Top_N = 5, # Limits opponents/statistics to top 5
+                                 Silent = F)) # Shows progress/output (non-silent mode)
 
-Result %>% View
+Result %>% View # Opens the aggregated results in RStudio's data viewer for interactive exploration
 
  
 ```

@@ -3,40 +3,44 @@ Winsummary_Function_Compiler <- function(result_Large_events,
                                          playerinfo, Silent = TRUE,
                                          Top_N = 10){
 
-    if(!Silent) message(glue::glue("You are now looking at {Player_Name}"))
+    if(!Silent) message(glue::glue("You are now looking at {Player_Name}")) # Prints the player name being analyzed (if Silent=FALSE)
 
-    if( result_Large_events %>%
-        filter(grepl(Player_Name, winner_name) | grepl(Player_Name, loser_name)) %>% nrow() < 10) {
+    if( result_Large_events %>% # Exits if player has fewer than 10 matches (insufficient data)
+        filter(grepl(Player_Name, winner_name) | grepl(Player_Name, loser_name)) %>% # check amount of games played
+        nrow() < 10) { # too few games if less than 10
         warning(glue::glue("Player: {Player_Name} played too few games.... ignored"))
-        return(NULL)
+        return(NULL) # skip further processing player
     }
 
-    games_df_raw <-
+    games_df_raw <- #Identifies all matches involving the target player and classifies them as Wins/Losses.
         result_Large_events %>%
-        mutate(Result = ifelse(grepl(Player_Name, winner_name), "Win",
-                               ifelse(grepl(Player_Name, loser_name), "Loss", NA))) %>% filter(!is.na(Result))
+        mutate(Result = ifelse(grepl(Player_Name, winner_name), "Win", # Creates a base dataframe marking each match as Win/Loss for the target player
+                               ifelse(grepl(Player_Name, loser_name), "Loss", NA))) %>%
+        filter(!is.na(Result)) # Filters to dataframe containing only the player's matches with a new Result column
 
     # Determine opponent's hand:
 
     games_df <-
         games_df_raw %>%
-        mutate(player_id = ifelse(Result == "Win", loser_id,
+        mutate(player_id = ifelse(Result == "Win", loser_id, # Opponent ID: (loser_id for wins, winner_id for losses)
                                   ifelse(Result == "Loss", winner_id, NA))) %>%
-        mutate(Opp_Rank = ifelse(Result == "Win", loser_rank,
+        mutate(Opp_Rank = ifelse(Result == "Win", loser_rank, # Opponent rank
                                  ifelse(Result == "Loss", winner_rank, NA))) %>%
-        mutate(Type_Opponet = ifelse(Opp_Rank <= Top_N, glue::glue("Top {Top_N}"),
+        mutate(Type_Opponet = ifelse(Opp_Rank <= Top_N, glue::glue("Top {Top_N}"), # Classifies opponent strength: Top N / Weak / NA (unclassified)
                                      ifelse(Opp_Rank >= 50, "Weak Player", NA))) %>%
-        left_join(., playerinfo, by = "player_id")
+        left_join(., playerinfo, by = "player_id") # Adds opponent characteristics (handedness, height)
 
 
     # Exploring phase:
     Result_Win <-
 
         bind_rows(
-            games_df %>% summarise(Win_Percentage = sum(Result == "Win") / n()) %>%
+            games_df %>%
+                summarise(Win_Percentage = sum(Result == "Win") / n()) %>%
                 mutate(Type = "All"),
 
-            games_df %>% group_by(surface) %>%
+            games_df %>%
+                group_by(surface) %>%
                 summarise(Win_Percentage = sum(Result == "Win") / n()) %>%
                 rename(Type = surface),
 
@@ -52,7 +56,8 @@ Winsummary_Function_Compiler <- function(result_Large_events,
                 summarise(Win_Percentage = sum(Result == "Win") / n()) %>%
                 rename(Type = hand),
 
-            games_df %>% mutate(Ht = ifelse(height >= 189, "Tall_Height", ifelse(height < 189, "Medium_Height", NA))) %>%
+            games_df %>%
+                mutate(Ht = ifelse(height >= 189, "Tall_Height", ifelse(height < 189, "Medium_Height", NA))) %>%
                 filter(!is.na(Ht)) %>%
                 group_by(Ht) %>%
                 summarise(Win_Percentage = sum(Result == "Win") / n()) %>%

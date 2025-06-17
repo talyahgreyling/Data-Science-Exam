@@ -1,24 +1,25 @@
 Data_Prep_Function <- function(Lst, Tournament_Inputs = c("G", "M", "F")){
 
-    read_file_func <- function(Lst){
+    read_file_func <- function(Lst){ # safely read and preprocess RDS (R Data Storage) files while handling potential warnings/errors and ensuring proper data typing
         # listchoose <- Lst[[10]]
-        listchoose <- Lst
+        listchoose <- Lst # Takes a file path or list element containing RDS path
 
         shhrds <- function(x, ...) {
-            sjrd <- purrr::quietly(read_rds)
-            df <- sjrd(x, ... )
-            df$result
+            sjrd <- purrr::quietly(read_rds) # Quiet version of read_rds
+            df <- sjrd(x, ... ) # Reads file, captures output/warnings
+            df$result # Returns only the data
         }
-        result <- suppressWarnings(shhrds(listchoose))
+        result <- suppressWarnings(shhrds(listchoose)) # Reads file with no warnings
         result <-
             result %>%
             mutate(across(.cols = -c(contains("tourney"), contains("name"), contains("ioc"), contains("round"), contains("score"), contains("surface")),
-                          .fns = ~as.numeric(.))) %>%
+                          .fns = ~as.numeric(.))) %>%  # Convert MOST columns to numeric
             mutate(across(.cols = c(contains("tourney"), contains("name"), contains("ioc"), contains("round"), contains("score"), contains("surface")),
-                          .fns = ~as.character(.)))
-    }
+                          .fns = ~as.character(.))) # Force specific columns to stay as character
+    } # ioc = country code
 
-    result <- Lst %>% map_df(~read_file_func(.))
+    result <- Lst %>% # imput RDS file paths as list
+        map_df(~read_file_func(.)) #Applies read_file_func() to each file & Combines all files into one dataframe (map_df)
 
     # Tons of data, might require some filtering.
 
@@ -27,8 +28,10 @@ Data_Prep_Function <- function(Lst, Tournament_Inputs = c("G", "M", "F")){
     # result$tourney_date %>% unique
 
     result <-
-        result %>% mutate(date = ymd(tourney_date)) %>%
-        select(date, everything())
+        result %>%
+        mutate(date = ymd(tourney_date)) %>% # Convert to Date type
+        select(date, everything()) # Move date column first
+
     # Let's only consider big events - the small ones don't matter...
     # see
     # tourney_level
@@ -38,8 +41,10 @@ Data_Prep_Function <- function(Lst, Tournament_Inputs = c("G", "M", "F")){
     # result %>% select(tourney_id, tourney_level, tourney_name) %>% unique
 
     result_Large_events <-
-        result %>% mutate(date = ymd(tourney_date)) %>% select(date, everything()) %>%
-        filter(tourney_level %in% Tournament_Inputs)
+        result %>%
+        mutate(date = ymd(tourney_date)) %>%
+        select(date, everything()) %>%
+        filter(tourney_level %in% Tournament_Inputs) # select tournament levels specified in Readme
 
     result_Large_events
 
